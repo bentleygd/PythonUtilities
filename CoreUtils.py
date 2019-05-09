@@ -1,13 +1,13 @@
 from email.mime.text import MIMEText
+from socket import gethostbyname
 import smtpblib
 import logging
 
 
-def MailSend():
+def MailSend(sender, recipients, mailbody):
     """Simple function to send mail."""
-    sender = 'sender@domain.com'
-    recipients = 'recipients@domain.com'
-    mail_body = ('String of varying length to serve as the body of the email')
+    mail_sender = sender
+    mail_recipients = recipients
     msg = MIMEText(mail_body)
     msg['Subject'] = 'Example subject'
     msg['From'] = sender
