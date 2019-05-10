@@ -1,13 +1,13 @@
 from email.mime.text import MIMEText
+from socket import gethostbyname
 import smtpblib
 import logging
 
 
-def MailSend():
+def MailSend(sender, recipients, mailbody):
     """Simple function to send mail."""
-    sender = 'sender@domain.com'
-    recipients = 'recipients@domain.com'
-    mail_body = ('String of varying length to serve as the body of the email')
+    mail_sender = sender
+    mail_recipients = recipients
     msg = MIMEText(mail_body)
     msg['Subject'] = 'Example subject'
     msg['From'] = sender
@@ -28,8 +28,8 @@ def SysLogSetup():
     sl.setLevel(logging.INFO)
 
     # Creating a log formatter.
-    sl_format = logging.Formatter('%(asctime)s - %(processName)s - 
-                                   %(levelname)s - %(message)s', 
+    sl_format = logging.Formatter('%(asctime)s - %(processName)s -
+                                   %(levelname)s - %(message)s',
                                   datefmt='%m/%d/%Y %I:%M:%S %p')
     sl.setFormatter(sl_format)
     syslogme.addHandler(sl)
@@ -44,7 +44,7 @@ def FileLogSetup():
     rfh = logging.RotatingFileHandler('/somelogname', maxBytes=52428800,
                                       backupCount=5)
     rfh.setLevel(logging.DEBUG)
-    rfh_format = logging.Formatter('%(asctime)s - %(processName)s - 
+    rfh_format = logging.Formatter('%(asctime)s - %(processName)s -
                                    %(levelname)s - %(message)s', exc_info,
                                    datefmt='%m/%d/%Y %I:%M:%S %p')
     rfh.setFormatter(rfh_format)
