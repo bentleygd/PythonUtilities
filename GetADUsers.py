@@ -2,11 +2,12 @@
 from re import search
 from ldap import initialize, SCOPE_SUBTREE
 
+
 class LDAPConfig:
     """Config class for LDAP stuff"""
     def __init__(self, file_name):
         self.fl = file_name
-    
+
     def LDAP_URL(self):
         """Get the URL of the LDAP server"""
         config = open(self.fl, 'r+b')
@@ -69,7 +70,7 @@ results_file = open(my_ldap_config.ResultsFile(), 'w')
 user_list = []
 for dn in my_ldap_config.LDAPSearchDN():
     user_data = (my_ldap.search_s(dn, SCOPE_SUBTREE,
-                     'sAMAccountName=*',['sAMAccountName'], attrsonly=0))
+                 'sAMAccountName=*', ['sAMAccountName'], attrsonly=0))
     for data in user_data:
         user_list.append(data[1].get('sAMAccountName')[0].lower())
 

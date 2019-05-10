@@ -28,8 +28,8 @@ def SysLogSetup():
     sl.setLevel(logging.INFO)
 
     # Creating a log formatter.
-    sl_format = logging.Formatter('%(asctime)s - %(processName)s - 
-                                   %(levelname)s - %(message)s', 
+    sl_format = logging.Formatter('%(asctime)s - %(processName)s -  
+                                   %(levelname)s - %(message)s',
                                   datefmt='%m/%d/%Y %I:%M:%S %p')
     sl.setFormatter(sl_format)
     syslogme.addHandler(sl)
