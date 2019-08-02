@@ -27,14 +27,14 @@ def SysLogSetup():
 def FileLogSetup():
     """Function to be used to set up simple logging to a file."""
     filelogme = logging.GetLogger('FileLogger')
-    filelogme.setLevel(loogging.DEBUG)
+    filelogme.setLevel(logging.DEBUG)
 
     # Setting up a rotating file log handler.
     rfh = logging.RotatingFileHandler('/somelogname', maxBytes=52428800,
                                       backupCount=5)
     rfh.setLevel(logging.DEBUG)
     rfh_format = logging.Formatter('%(asctime)s - %(processName)s -\
-                                   %(levelname)s - %(message)s', exc_info,
+                                   %(levelname)s - %(message)s',
                                    datefmt='%m/%d/%Y %I:%M:%S %p')
     rfh.setFormatter(rfh_format)
     filelogme.addHandler(rfh)

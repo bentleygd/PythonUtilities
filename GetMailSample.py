@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from ldap import initialize,SCOPE_SUBTREE
+from ldap import initialize, SCOPE_SUBTREE
 from random import sample
 from csv import DictWriter
 import coreutils
@@ -12,7 +12,7 @@ def GetADMailUsers(ldap_url, bind_dn, passw, ous):
     ldap_obj.simple_bind_s(bind_dn, passw)
     for ou in ous:
         user_data = (ldap_obj.search_s(ou, SCOPE_SUBTREE, 'mail=*',
-                     ['givenName','sn','mail','department'], attrsonly=0))
+                     ['givenName', 'sn', 'mail', 'department'], attrsonly=0))
         for data in user_data:
             mail_list.append(data[1])
     return mail_list
@@ -40,8 +40,8 @@ l_pass = str(coreutils.DecryptGPG(ml_smpl_cnf.LDAP_Pass(), gpghome, gpg_pass)
 l_ous = ml_smpl_cnf.LDAPSearchOU()
 
 # Getting user data
-mail_list = GetADMailUsers(l_url,l_bdn,l_pass,l_ous)
-mail_sample = GetMailSample(mail_list)
+mail_users = GetADMailUsers(l_url, l_bdn, l_pass, l_ous)
+mail_sample = GetMailSample(mail_users)
 
 # Writing data to a CSV file
 results_file = ml_smpl_cnf.ResultsFile()
