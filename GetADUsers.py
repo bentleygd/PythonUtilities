@@ -54,6 +54,8 @@ class LDAPConfig:
                 return rf.group(2)
         config.close()
 
+# This script needs to be refactored to incorporate changes that have
+# been made to centralize configurations and other core utils.
 
 # Setting script configurations.
 my_ldap_config = LDAPConfig('ldap.cnf')
