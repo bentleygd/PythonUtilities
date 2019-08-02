@@ -12,8 +12,7 @@ def GetADMailUsers(ldap_url, bind_dn, passw, ous):
     ldap_obj.simple_bind_s(bind_dn, passw)
     for ou in ous:
         user_data = (ldap_obj.search_s(ou, SCOPE_SUBTREE, 'mail=*',
-                     ['givenName','sn','mail','physicalDeliveryOfficeName',
-                      'department'], attrsonly=0))
+                     ['givenName','sn','mail','department'], attrsonly=0))
         for data in user_data:
             mail_list.append(data[1])
     return mail_list
@@ -52,13 +51,8 @@ writer = DictWriter(csv_file, fieldnames=f_names, dialect='excel')
 writer.writeheader()
 for user in mail_sample:
     user = dict(user)
-    print user
-    print user.get('mail')[0]
-    print user.get('givenName')[0]
-    print user.get('sn')[0]
     writer.writerow({'First Name': user.get('givenName')[0],
                      'Last Name': user.get('sn')[0],
                      'email': user.get('mail')[0],
-                     'Department': user.get('department')[0],
-                     'Region': user.get('physicalDeliveryOfficeName')[0]})
+                     'Department': user.get('department')[0]})
 csv_file.close()
