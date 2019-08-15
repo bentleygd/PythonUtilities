@@ -40,7 +40,7 @@ def FileLogSetup():
     filelogme.addHandler(rfh)
 
 
-# The below object is a configuration object that can be modified to 
+# The below object is a configuration object that can be modified to
 # suit your needs.  Simply change the functions to whatever would be
 # appropriate for your script as well as the RegEx.
 class GetConfig:
@@ -126,6 +126,7 @@ def MailSend(mail_sender, mail_recipients, mail_server, mail_body):
     s = SMTP(gethostbyname(mail_server), '25')
     # Sending the mail.
     s.sendmail(mail_sender, mail_recipients, msg.as_string())
+
 
 def DecryptGPG(cipher_file, gpghome, p_phrase):
     """Simple decrypt."""

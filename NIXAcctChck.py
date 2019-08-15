@@ -31,7 +31,7 @@ def GetGroups(host):
     for line in m_groups:
         groups.append(str(line).strip('\n'))
     for group in groups:
-        r_exp = r'^' + group + '.+\d{4,6}:'
+        r_exp = r'^' + group + r'.+\d{4,6}:'
         for host_group in host_groups:
             if search(r_exp, host_group):
                 monitored_groups.append(host_group)
