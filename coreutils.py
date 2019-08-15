@@ -40,6 +40,9 @@ def FileLogSetup():
     filelogme.addHandler(rfh)
 
 
+# The below object is a configuration object that can be modified to
+# suit your needs.  Simply change the functions to whatever would be
+# appropriate for your script as well as the RegEx.
 class GetConfig:
     """A configuration class"""
     def __init__(self, file_location):
@@ -113,16 +116,26 @@ class GetConfig:
 
 def MailSend(mail_sender, mail_recipients, mail_server, mail_body):
     """Simple function to send mail."""
+    # Defining mail properties.
     msg = MIMEText(mail_body)
     msg['Subject'] = 'MSFT IP Scrape'
     msg['From'] = mail_sender
     msg['To'] = mail_recipients
+    # Obtaining IP address of SMTP server host name.  If using an IP
+    # address, omit the gethostbyname function.
+    s = SMTP(gethostbyname(mail_server), '25')
+    # Sending the mail.
     s = SMTP(gethostbyname(mail_server), '25')
     s.sendmail(mail_sender, mail_recipients, msg.as_string())
 
 
 def DecryptGPG(cipher_file, gpghome, p_phrase):
     """Simple decrypt."""
+    # Specifying where the encrypted data is.
+    cipher_data = str(open(cipher_file, 'r').read()).strip('\n')
+    # Initializing GPG.
+    g = GPG(gnupghome=gpghome)
+    # Decrypting the cipher text to clear text.
     cipher_data = str(open(cipher_file, 'r').read()).strip('\n')
     g = GPG(gnupghome=gpghome)
     clear_data = g.decrypt(cipher_data, passphrase=p_phrase)

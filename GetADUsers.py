@@ -66,7 +66,8 @@ results_file = open(my_ldap_config.ResultsFile(), 'w')
 
 # Getting users and storing them in a list, and writing that list to a
 # file.  Note that the search uses SCOPE_SUBTREE, so the search will
-# also run through any sub level OUs.
+# also run through any sub level OUs.  We are only obtaining the
+# SAM Account name value (i.e, the user name).
 user_list = []
 for dn in my_ldap_config.LDAPSearchDN():
     user_data = (my_ldap.search_s(dn, SCOPE_SUBTREE,
@@ -74,7 +75,9 @@ for dn in my_ldap_config.LDAPSearchDN():
     for data in user_data:
         user_list.append(data[1].get('sAMAccountName')[0].lower())
 
+# Sorting the list due to OCD.
 user_list.sort()
+# Iterating through the user list and writing the user names to a file.
 for user in user_list:
     results_file.write(user + '\n')
 results_file.close()
