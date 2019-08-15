@@ -125,6 +125,7 @@ def MailSend(mail_sender, mail_recipients, mail_server, mail_body):
     # address, omit the gethostbyname function.
     s = SMTP(gethostbyname(mail_server), '25')
     # Sending the mail.
+    s = SMTP(gethostbyname(mail_server), '25')
     s.sendmail(mail_sender, mail_recipients, msg.as_string())
 
 
@@ -135,5 +136,7 @@ def DecryptGPG(cipher_file, gpghome, p_phrase):
     # Initializing GPG.
     g = GPG(gnupghome=gpghome)
     # Decrypting the cipher text to clear text.
+    cipher_data = str(open(cipher_file, 'r').read()).strip('\n')
+    g = GPG(gnupghome=gpghome)
     clear_data = g.decrypt(cipher_data, passphrase=p_phrase)
     return clear_data
