@@ -130,16 +130,16 @@ LDAP_BDN_Status = ldap_test_config.TestLDAPBDN()
 LDAP_SDN_Status = ldap_test_config.TestLDAPSDN()
 Results_File_Status = ldap_test_config.TestResultsFile()
 # Checking to see if we can connect to LDAP with information provided
-# in the configuration file.  We check the results of each check to 
+# in the configuration file.  We check the results of each check to
 # see if any checks fail before making a connection attempt.
 config_list = [LDAP_URL_Status, LDAP_Pass_Status, LDAP_BDN_Status,
-                 LDAP_SDN_Status, Results_File_Status]
+               LDAP_SDN_Status, Results_File_Status]
 if 'Fail' not in config_list:
     ldap_config = GetConfig(config_file)
-    lurl = ldap_config.LDAP_URL()
+    l_url = ldap_config.LDAP_URL()
     lbdn = ldap_config.LDAP_BDN()
     lpass = ldap_config.LDAP_Pass()
-    LDAP_Conn_Status = TestLDAPConnection(lurl, lbdn, lpass)
+    LDAP_Conn_Status = TestLDAPConnection(l_url, lbdn, lpass)
     # Providing test output.
     print 'LDAP configs status is: ', config_status
     print 'LDAP URL configuration status is: ', LDAP_URL_Status

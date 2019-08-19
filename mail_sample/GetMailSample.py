@@ -3,7 +3,7 @@ from ldap import initialize, SCOPE_SUBTREE
 from random import sample
 from csv import DictWriter
 from sys import path
-path.insert(0, ~/PythonUtilities/lib)
+path.insert(0, '../lib')
 import coreutils
 
 
