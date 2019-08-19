@@ -56,7 +56,7 @@ class LDAPConfig:
 
 
 # Setting script configurations.
-my_ldap_config = LDAPConfig('ldap.cnf')
+my_ldap_config = LDAPConfig('../etc/ldap.cnf')
 ldap_url = my_ldap_config.LDAP_URL()
 my_ldap = initialize(ldap_url)
 ldap_bind_dn = my_ldap_config.LDAP_BDN()
