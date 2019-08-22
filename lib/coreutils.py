@@ -1,6 +1,9 @@
 from email.mime.text import MIMEText
 from socket import gethostbyname
-from re import search
+from re import search, I, compile as r_compile
+from os import walk
+from os.path import join
+from gzip import GzipFile
 from gnupg import GPG
 from smtplib import SMTP
 
@@ -11,6 +14,7 @@ from smtplib import SMTP
 class GetConfig:
     """A configuration class"""
     def __init__(self, file_location):
+        # This is the config file location:
         self.fl = file_location
 
     def GPGHome(self):
@@ -77,6 +81,69 @@ class GetConfig:
                 results_file = rf_rgx.group(2)
                 return results_file
         config_file.close()
+
+
+# This class is a log searching object.
+class LogSearcher:
+    def __init__(self, log_dir):
+        # l_dirs is a list of log directories.
+        self.l_dir = log_dir
+        # gzlogs is a list of gzip log files.
+        self.gzlogs = []
+        # logs is a list of uncompressed log files.
+        self.logs = []
+        # a list of search hits.
+        self.search_hits = []
+
+    # This function produces a list of log files from the directory
+    # passed to the object when the object is instantiated.
+    def GetLogs(self):
+        """Gets a list of logs from the log dirs"""
+        for base, dirs, files in walk(log_dir):
+            for name in files:
+                log_name = join(base, name)
+                if log_name.endswith('gz'):
+                    self.gzlogs.append(log_name)
+                else:
+                    self.logs.append(log_name)
+
+    # This function searches the the list of compressed logs for the
+    # pattern defined by r_obj, which should be a RegEx object but
+    # could also be a RegEx pattern (i.e., a string not compiled by
+    # re.compile).
+    def GZLogSearch(self, r_obj):
+        """Log searching function for compressed logs."""
+        log_files = self.gzlogs
+        for log_file in log_files:
+            logs = GzipFile(log_file, 'r')
+            for log in logs:
+                if search(r_obj, log):
+                    self.search_hits.append(log)
+            logs.close()
+
+    # This function searches the the list of uncompressed logs for the
+    # pattern defined by r_obj, which should be a RegEx object but
+    # could also be a RegEx pattern (i.e., a string not compiled by
+    # re.compile).
+    def LogSearch(self, r_obj):
+        """Log searching function for uncompressed logs."""
+        log_files = self.logs
+        for log_file in log_files:
+            logs = open(log_file, 'r')
+            for log in logs:
+                if search(r_obj, log):
+                    self.search_hits.append(log)
+            logs.close()
+
+    # This function writes the logs that contain patterns that match
+    # the RegEx object used in LogSearch or GZLogSearch to the file
+    # specified by the file_name variable.
+    def WriteResults(self, file_name):
+        """Writes results to a log file."""
+        results_file = open(file_name, 'a')
+        for result in self.search_hits:
+            results_file.write(result)
+        results_file.close()
 
 
 def MailSend(mail_sender, mail_recipients, mail_server, mail_body):
