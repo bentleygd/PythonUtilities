@@ -1,5 +1,4 @@
 #!/usr/bin/python
-from re import search
 from ldap import initialize, SCOPE_SUBTREE, SERVER_DOWN, INVALID_CREDENTIALS
 from sys import path
 path.insert(0, '../lib')
@@ -59,7 +58,7 @@ except IOError:
 # also run through any sub level OUs.  We are only obtaining the
 # SAM Account name value (i.e, the user name).
 user_list = []
-for dn in my_ldap_config.LDAPSearchDN():
+for dn in my_ldap_config.LDAPSearchOU():
     user_data = (my_ldap.search_s(dn, SCOPE_SUBTREE,
                  'sAMAccountName=*', ['sAMAccountName'], attrsonly=0))
     for data in user_data:
