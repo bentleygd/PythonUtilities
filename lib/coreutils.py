@@ -1,6 +1,6 @@
 from email.mime.text import MIMEText
 from socket import gethostbyname
-from re import search, I, compile as r_compile
+from re import search
 from os import walk
 from os.path import join
 from gzip import GzipFile
@@ -99,10 +99,10 @@ class LogSearcher:
     # passed to the object when the object is instantiated.
     def GetLogs(self):
         """Gets a list of logs from the log dirs"""
-        for base, dirs, files in walk(log_dir):
+        for base, dirs, files in walk(self.l_dir):
             for name in files:
                 log_name = join(base, name)
-                if log_name.endswith('gz'):
+                if log_name.endswith('.gz'):
                     self.gzlogs.append(log_name)
                 else:
                     self.logs.append(log_name)
