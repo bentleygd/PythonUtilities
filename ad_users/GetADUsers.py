@@ -1,75 +1,64 @@
 #!/usr/bin/python
-from re import search
-from ldap import initialize, SCOPE_SUBTREE
-
-
-class LDAPConfig:
-    """Config class for LDAP stuff"""
-    def __init__(self, file_name):
-        self.fl = file_name
-
-    def LDAP_URL(self):
-        """Get the URL of the LDAP server"""
-        config = open(self.fl, 'r+b')
-        for line in config:
-            lurl = search(r'(^LDAP_URL: )(\S+)', line)
-            if lurl:
-                return lurl.group(2)
-        config.close()
-
-    def LDAP_Pass(self):
-        """Password for the user connecting to the LDAP server."""
-        config = open(self.fl, 'r+b')
-        for line in config:
-            ldap_secret = search(r'(^PASS: )(\S+)', line)
-            if ldap_secret:
-                return ldap_secret.group(2)
-        config.close()
-
-    def LDAP_BDN(self):
-        """Get the LDAP Bind DN."""
-        config = open(self.fl, 'r+b')
-        for line in config:
-            ldapbdn = search(r'(^BIND_DN: )(.+)', line)
-            if ldapbdn:
-                return ldapbdn.group(2)
-        config.close()
-
-    def LDAPSearchDN(self):
-        """Get a list of DNs to search through."""
-        config = open(self.fl, 'r+b')
-        for line in config:
-            ldapsdn = search(r'(^SEARCH_DNS: )(.+)', line)
-            if ldapsdn:
-                search_dn = ldapsdn.group(2).split('|')
-                return search_dn
-        config.close()
-
-    def ResultsFile(self):
-        """File that results are written to."""
-        config = open(self.fl, 'r+b')
-        for line in config:
-            rf = search(r'(^RESULTS_FILE:\s)(.+)', line)
-            if rf:
-                return rf.group(2)
-        config.close()
+from ldap import initialize, SCOPE_SUBTREE, SERVER_DOWN, INVALID_CREDENTIALS
+from sys import path
+path.insert(0, '../lib')
+from coreutils import GetConfig, MailSend
 
 
 # Setting script configurations.
-my_ldap_config = LDAPConfig('../etc/ldap.cnf')
+sender = 'ADUserFailure@domain.com'
+rcpt = 'team@domain.com'
+m_server = 'smtpserver.domain.com'
+try:
+    my_ldap_config = GetConfig('../etc/ldap.cnf')
+except IOError:
+    print 'Unable to open configuration file.  Exiting'
+    m_msg = ('Unable to open the configuration file needed to make ' +
+             'the LDAP connection.  This is a fatal error and the job ' +
+             'has been aborted.  Please check for the existence of the ' +
+             'configuration and on file permissions.')
+    m_subj = 'GetADUsers Failure - Unable to load config'
+    MailSend(sender, rcpt, m_server, m_subj, m_msg)
+    exit(1)
+
 ldap_url = my_ldap_config.LDAP_URL()
 my_ldap = initialize(ldap_url)
 ldap_bind_dn = my_ldap_config.LDAP_BDN()
 ldap_bind_secret = my_ldap_config.LDAP_Pass()
-my_ldap.simple_bind_s(ldap_bind_dn, ldap_bind_secret)
-results_file = open(my_ldap_config.ResultsFile(), 'w')
+
+try:
+    my_ldap.simple_bind_s(ldap_bind_dn, ldap_bind_secret)
+except SERVER_DOWN:
+    print 'Unable to connect to LDAP server due to network issues.'
+    m_subj = 'GetADUsers Failure - LDAP Server Down'
+    m_msg = ('Unable to connect to the LDAP server due to networking ' +
+             'issues.  Please note that the exception indictated that the' +
+             ' server is down and this is not related to credentials.')
+    MailSend(sender, rcpt, m_server, m_subj, m_msg)
+    exit(1)
+except INVALID_CREDENTIALS:
+    print 'Unable to connect to LDAP server due to bad credentials.'
+    m_subj = 'GetADUsers Failure - Bad Credentials'
+    m_msg = ('Unable to connect to the LDAP server due to bad credentials')
+    MailSend(sender, rcpt, m_server, m_subj, m_msg)
+    exit(1)
+
+try:
+    results_file = open(my_ldap_config.ResultsFile(), 'w')
+except IOError:
+    print 'Unable to open results file.  Exiting'
+    m_msg = ('Unable to write to the results file.  This is most likely a' +
+             ' permissions issue.')
+    m_subj = 'GetADUsers Failure - Unable to write results.'
+    MailSend(sender, rcpt, m_server, m_subj, m_msg)
+    exit(1)
 
 # Getting users and storing them in a list, and writing that list to a
 # file.  Note that the search uses SCOPE_SUBTREE, so the search will
 # also run through any sub level OUs.  We are only obtaining the
 # SAM Account name value (i.e, the user name).
 user_list = []
-for dn in my_ldap_config.LDAPSearchDN():
+for dn in my_ldap_config.LDAPSearchOU():
     user_data = (my_ldap.search_s(dn, SCOPE_SUBTREE,
                  'sAMAccountName=*', ['sAMAccountName'], attrsonly=0))
     for data in user_data:
@@ -78,6 +67,14 @@ for dn in my_ldap_config.LDAPSearchDN():
 # Sorting the list due to OCD.
 user_list.sort()
 # Iterating through the user list and writing the user names to a file.
-for user in user_list:
-    results_file.write(user + '\n')
-results_file.close()
+if len(user_list) > 100:
+    for user in user_list:
+        results_file.write(user + '\n')
+    results_file.close()
+else:
+    m_msg = 'Determine if searched OUs are valid'
+    m_subj = 'GetADUsers Warning - Low User Count.'
+    MailSend(sender, rcpt, m_server, m_subj, m_msg)
+    for user in user_list:
+        results_file.write(user + '\n')
+    results_file.close()

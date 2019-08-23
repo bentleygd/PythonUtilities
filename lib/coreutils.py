@@ -146,11 +146,11 @@ class LogSearcher:
         results_file.close()
 
 
-def MailSend(mail_sender, mail_recipients, mail_server, mail_body):
+def MailSend(mail_sender, mail_recipients, mail_server, subject, mail_body):
     """Simple function to send mail."""
     # Defining mail properties.
     msg = MIMEText(mail_body)
-    msg['Subject'] = 'MSFT IP Scrape'
+    msg['Subject'] = subject
     msg['From'] = mail_sender
     msg['To'] = mail_recipients
     # Obtaining IP address of SMTP server host name.  If using an IP
